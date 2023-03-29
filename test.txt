@@ -1,0 +1,153 @@
+import logging
+from aiogram import Bot, Dispatcher, executor, types
+from aiogram.dispatcher.filters.builtin import CommandStart,CommandHelp
+from utils.set_bot_commands import set_default_commands
+
+logging.basicConfig(level=logging.INFO)
+
+bot = Bot(token = '5880075463:AAHkVFAjyvcCc9BJp70loIJjm619DvaH4oU')
+dp = Dispatcher(bot)
+
+async def on_startup(dp):
+    
+    await set_default_commands(dp)
+
+@dp.message_handler(CommandStart())
+async def start(call: types.Message):
+        gif = open("gifHello/hello.mp4",'rb')
+        await call.answer_video(gif,caption="Приветствую\u2764\ufe0f!\nДанный бот сделан для того что бы упростить вам обучение")
+
+@dp.message_handler(CommandHelp())
+async def help(call: types.Message):
+        text = ("Список команд: ",
+            "/start - Начать диалог",
+            "/help - Получить справку",
+            "/time - Получить время пар",
+            "/sendschedule - Получить расписание",
+            "/sendplan - Получить план обучения")
+
+        await call.answer("\n".join(text))
+
+@dp.message_handler(commands = ['time'])
+async def time(message: types.Message):
+        text = ("1 пара  08-30 - 10-05",
+            "2 пара  10-25 - 12-00",
+            "3 пара  12-20 - 13-55",
+            "4 пара  14-15 - 15-50",
+            "5 пара  16-10 - 17-45")
+        await message.answer("\n".join(text))
+
+
+@dp.message_handler(commands = ['sendschedule'])
+async def sendschedule(message: types.Message):
+        await message.answer("Введи группу в которой ты учишься")
+
+
+@dp.message_handler(commands = ['sendplan'])
+async def plan(message: types.Message):
+        kb = [
+                [types.KeyboardButton(text="Первый курс")],
+                [types.KeyboardButton(text="Второй курс")],
+                [types.KeyboardButton(text="Третий курс")],
+                [types.KeyboardButton(text="Четвертый курс")]]
+        keyboard = types.ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
+        await message.answer("Выбери какой курс:",reply_markup=keyboard)
+
+
+
+@dp.message_handler()        
+async def messagewrite(message: types.Message):                
+        if message.text == "ЛА-01" or message.text == "ла-01" or message.text == "Ла-01" :
+                kb = [
+                [types.KeyboardButton(text="Первая неделя")],
+                [types.KeyboardButton(text="Вторая неделя")]]
+                keyboard = types.ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
+                await message.answer("Выбери какая нужна неделя",reply_markup=keyboard)
+        
+        if message.text == "Первая неделя":
+                photo1 = open("gifHello/FirstWeek.png",'rb')
+                await message.answer_photo(photo1, caption="Рассписание на первую неделю")
+        elif message.text == "Вторая неделя":
+                photo1 = open("gifHello/SecondWeek.png",'rb')
+                await message.answer_photo(photo1, caption="Рассписание на вторую неделю")
+
+
+        if message.text == "Первый курс":
+                try:
+                   cheak = open("gifHello/INP_4553.pdf",'rb')
+                   await message.answer_document(cheak, caption='Вот твой план на данный курс')
+                except IOError:     
+                        kb = [[types.KeyboardButton(text="Загрузить план обучения на 1курс")],
+                        [types.KeyboardButton(text="Вернуться на шаг назад")]]
+                        keyboard = types.ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
+                        await message.answer("Плана на данный курс нету\nЖелаешься пополнить нашу базу и загрузить его сам?", reply_markup=keyboard)
+        elif message.text == "Второй курс":
+                try:
+                   cheak = open("gifHello/INP_4554.pdf",'rb')
+                   await message.answer_document(cheak, caption='Вот твой план на данный курс')
+                except IOError:     
+                        kb = [[types.KeyboardButton(text="Загрузить план обучения на 2курс")],
+                        [types.KeyboardButton(text="Вернуться на шаг назад")]]
+                        keyboard = types.ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
+                        await message.answer("Плана на данный курс нету\nЖелаешься пополнить нашу базу и загрузить его сам?", reply_markup=keyboard)
+        elif message.text == "Третий курс":
+                try:
+                   cheak = open("gifHello/INP_4555.pdf",'rb')
+                   await message.answer_document(cheak, caption='Вот твой план на данный курс')
+                except IOError:     
+                        kb = [[types.KeyboardButton(text="Загрузить план обучения на 3курс")],
+                        [types.KeyboardButton(text="Вернуться на шаг назад")]]
+                        keyboard = types.ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
+                        await message.answer("Плана на данный курс нету\nЖелаешься пополнить нашу базу и загрузить его сам?", reply_markup=keyboard)
+        elif message.text == "Четвертый курс":
+                try:
+                   cheak = open("gifHello/INP_4556.pdf",'rb')
+                   await message.answer_document(cheak, caption='Вот твой план на данный курс')
+                except IOError:     
+                        kb = [[types.KeyboardButton(text="Загрузить план обучения на 4курс")],
+                        [types.KeyboardButton(text="Вернуться на шаг назад")]]
+                        keyboard = types.ReplyKeyboardMarkup(keyboard=kb, one_time_keyboard=True)
+                        await message.answer("Плана на данный курс нету\nЖелаешься пополнить нашу базу и загрузить его сам?", reply_markup=keyboard)
+
+
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True,on_startup=on_startup)    
+
+
+
+
+@dp.message_handler(content_types=["document"])
+async def download_document(message: types.Message):
+        if "Первый курс" in message.document.file_name:
+            if message.caption.capitalize() in groups:
+                db.add_document1(message.from_user.id,message.document.file_name,message.document.file_id, message.caption.capitalize())
+                file_id = message.document.file_id
+                file = await bot.get_file(file_id)
+                await bot.download_file(file.file_path, message.document.file_name)
+                source_path = "C:\Python\\topbot\\" + message.document.file_name
+                if path.exists(source_path):
+                    destination_path = "C:\Python\\topbot\\plangroup\\Первый курс\\"+ message.caption.capitalize() + "\\" + message.document.file_name
+                    shutil.move(source_path, destination_path)
+            
+
+
+Connect DB 
+import pymysql
+
+
+try:
+
+    connection = pymysql.connect(
+        host = "localhost",
+        port = 3306, 
+        user = "root",
+        password = "",
+        database = "telegrampython",
+        cursorclass = pymysql.cursors.DictCursor
+    )
+    print("Good")
+
+
+except Exception as ex: 
+    print("Not Good")
+    print(ex)           
